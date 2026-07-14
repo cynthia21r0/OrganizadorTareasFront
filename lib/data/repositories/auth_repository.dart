@@ -1,83 +1,50 @@
-import 'package:uuid/uuid.dart';
+import '../../core/network/api_client.dart';
 import '../models/user_model.dart';
-import '../services/auth_service.dart';
-import '../services/database_service.dart';
+
+class RegisterResult {
+  final UserModel user;
+  final String familyName;
+  final String inviteCode;
+  RegisterResult({required this.user, required this.familyName, required this.inviteCode});
+}
 
 class AuthRepository {
-  final _db = DatabaseService.instance;
-  final _uuid = const Uuid();
+  final _dio = ApiClient.instance.dio;
 
-  /// Registro (CREATE). El primer usuario registrado en la app
-  /// queda como 'admin' (gestiona a la familia); los siguientes,
-  /// como 'member'.
-  Future<UserModel> register({
+  /// Crea familia nueva (si [inviteCode] es null) o se une a una existente.
+  Future<RegisterResult> register({
     required String name,
     required String email,
     required String password,
+    required FamilyRole role,
+    String? familyName,
+    String? inviteCode,
   }) async {
-    final db = await _db.database;
-
-    final existing = await db.query(
-      'users',
-      where: 'email = ?',
-      whereArgs: [email.trim().toLowerCase()],
+    final res = await _dio.post('/auth/register', data: {
+      'name': name,
+      'email': email,
+      'password': password,
+      'role': role.name,
+      if (familyName != null) 'familyName': familyName,
+      if (inviteCode != null) 'inviteCode': inviteCode,
+    });
+    return RegisterResult(
+      user: UserModel.fromJson(res.data['user']),
+      familyName: res.data['family']['name'] as String,
+      inviteCode: res.data['family']['inviteCode'] as String,
     );
-    if (existing.isNotEmpty) {
-      throw Exception('Ya existe una cuenta con ese correo');
-    }
-
-    final countResult = await db.rawQuery('SELECT COUNT(*) as total FROM users');
-    final isFirstUser = (countResult.first['total'] as int) == 0;
-
-    final user = UserModel(
-      id: _uuid.v4(),
-      name: name.trim(),
-      email: email.trim().toLowerCase(),
-      passwordHash: AuthService.hashPassword(password),
-      role: isFirstUser ? UserRole.admin : UserRole.member,
-    );
-
-    await db.insert('users', user.toMap());
-    return user;
   }
 
-  /// Login (READ + verificación)
   Future<UserModel> login({required String email, required String password}) async {
-    final db = await _db.database;
-    final results = await db.query(
-      'users',
-      where: 'email = ?',
-      whereArgs: [email.trim().toLowerCase()],
-    );
-
-    if (results.isEmpty) {
-      throw Exception('No existe una cuenta con ese correo');
-    }
-
-    final user = UserModel.fromMap(results.first);
-    final valid = AuthService.verifyPassword(password, user.passwordHash);
-    if (!valid) {
-      throw Exception('Contraseña incorrecta');
-    }
-    return user;
+    final res = await _dio.post('/auth/login', data: {'email': email, 'password': password});
+    ApiClient.instance.token = res.data['accessToken'] as String;
+    return UserModel.fromJson(res.data['user']);
   }
 
-  /// Lista todos los miembros de la familia (READ)
   Future<List<UserModel>> getAllUsers() async {
-    final db = await _db.database;
-    final results = await db.query('users', orderBy: 'name ASC');
-    return results.map((m) => UserModel.fromMap(m)).toList();
+    final res = await _dio.get('/users');
+    return (res.data as List).map((m) => UserModel.fromJson(m)).toList();
   }
 
-  /// Actualiza datos de un usuario (UPDATE)
-  Future<void> updateUser(UserModel user) async {
-    final db = await _db.database;
-    await db.update('users', user.toMap(), where: 'id = ?', whereArgs: [user.id]);
-  }
-
-  /// Elimina un usuario (DELETE)
-  Future<void> deleteUser(String id) async {
-    final db = await _db.database;
-    await db.delete('users', where: 'id = ?', whereArgs: [id]);
-  }
+  void logout() => ApiClient.instance.token = null;
 }

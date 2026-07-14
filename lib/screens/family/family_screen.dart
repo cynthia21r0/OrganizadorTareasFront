@@ -93,8 +93,9 @@ class _FamilyScreenState extends State<FamilyScreen> {
                         ),
                         const SizedBox(height: 10),
                         Text(m.name, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
-                        Text(m.role == UserRole.admin ? 'Administrador' : 'Miembro',
-                            style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary)),
+                        // ✅ 
+Text(m.role.label,
+    style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary)),
                         const SizedBox(height: 8),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),

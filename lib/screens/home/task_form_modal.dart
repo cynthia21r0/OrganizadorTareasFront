@@ -46,6 +46,12 @@ class _TaskFormModalState extends State<TaskFormModal> {
     _dueDate = t?.dueDate ?? DateTime.now();
     _priority = t?.priority ?? TaskPriority.media;
     _assignedToId = t?.assignedToId;
+
+    // Si no es guardián, la tarea siempre se autoasigna (sin mostrar dropdown)
+    final auth = context.read<AuthProvider>();
+    if (!auth.currentUser!.role.isGuardian) {
+      _assignedToId = auth.currentUser!.id;
+    }
   }
 
   @override
@@ -88,7 +94,6 @@ class _TaskFormModalState extends State<TaskFormModal> {
         dueDate: _dueDate,
         priority: _priority,
         assignedToId: assignedId,
-        createdById: currentUser.id,
       );
     }
     if (mounted) Navigator.of(context).pop();
@@ -99,6 +104,7 @@ class _TaskFormModalState extends State<TaskFormModal> {
     final auth = context.watch<AuthProvider>();
     final members = auth.familyMembers;
     final isTitleValid = _titleCtrl.text.trim().isNotEmpty;
+    final isGuardian = auth.currentUser!.role.isGuardian;
 
     return Padding(
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
@@ -118,7 +124,8 @@ class _TaskFormModalState extends State<TaskFormModal> {
               children: [
                 Center(
                   child: Container(
-                    width: 40, height: 4,
+                    width: 40,
+                    height: 4,
                     decoration: BoxDecoration(color: Colors.black12, borderRadius: BorderRadius.circular(4)),
                   ),
                 ),
@@ -182,14 +189,12 @@ class _TaskFormModalState extends State<TaskFormModal> {
                   }).toList(),
                 ),
                 const SizedBox(height: 14),
-                if (members.isNotEmpty) ...[
+                if (isGuardian && members.isNotEmpty) ...[
                   Text('Asignar a', style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
                   const SizedBox(height: 8),
                   DropdownButtonFormField<String>(
                     value: _assignedToId ?? auth.currentUser?.id,
-                    items: members
-                        .map((UserModel m) => DropdownMenuItem(value: m.id, child: Text(m.name)))
-                        .toList(),
+                    items: members.map((m) => DropdownMenuItem(value: m.id, child: Text(m.name))).toList(),
                     onChanged: (v) => setState(() => _assignedToId = v),
                     decoration: const InputDecoration(prefixIcon: Icon(Icons.person_pin_circle_outlined)),
                   ),

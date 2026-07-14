@@ -9,7 +9,7 @@ class TaskModel {
   final DateTime dueDate;
   final TaskPriority priority;
   final TaskStatus status;
-  final String assignedToId; // id del usuario/miembro asignado
+  final String assignedToId;
   final String createdById;
 
   TaskModel({
@@ -43,24 +43,25 @@ class TaskModel {
     );
   }
 
-  factory TaskModel.fromMap(Map<String, dynamic> map) {
+  factory TaskModel.fromJson(Map<String, dynamic> json) {
     return TaskModel(
-      id: map['id'] as String,
-      title: map['title'] as String,
-      description: map['description'] as String? ?? '',
-      dueDate: DateTime.parse(map['due_date'] as String),
+      id: json['id'] as String,
+      title: json['title'] as String,
+      description: json['description'] as String? ?? '',
+      dueDate: DateTime.parse(json['dueDate'] as String),
       priority: TaskPriority.values.firstWhere(
-        (p) => p.name == map['priority'],
+        (p) => p.name == json['priority'],
         orElse: () => TaskPriority.media,
       ),
       status: TaskStatus.values.firstWhere(
-        (s) => s.name == map['status'],
+        (s) => s.name == json['status'],
         orElse: () => TaskStatus.pendiente,
       ),
-      assignedToId: map['assigned_to_id'] as String,
-      createdById: map['created_by_id'] as String,
+      assignedToId: json['assignedToId'] as String,
+      createdById: json['createdById'] as String,
     );
   }
+
 
   Map<String, dynamic> toMap() {
     return {

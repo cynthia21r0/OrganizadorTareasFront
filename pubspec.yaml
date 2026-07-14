@@ -39,6 +39,7 @@ dependencies:
 
   # Persistencia local (base de datos SQLite)
   sqflite: ^2.3.3
+  dio: ^5.4.3
   path: ^1.9.0
   path_provider: ^2.1.3
 

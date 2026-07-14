@@ -28,7 +28,7 @@ class TaskProvider extends ChangeNotifier {
   Future<void> loadMyTasksByDay(String userId, DateTime day) async {
     isLoading = true;
     notifyListeners();
-    _myTasks = await _repo.getTasksByUserAndDate(userId, day);
+    _myTasks = await _repo.getTasksByUser(userId, day: day);
     isLoading = false;
     notifyListeners();
   }
@@ -44,7 +44,6 @@ class TaskProvider extends ChangeNotifier {
     required DateTime dueDate,
     required TaskPriority priority,
     required String assignedToId,
-    required String createdById,
   }) async {
     await _repo.createTask(
       title: title,
@@ -52,9 +51,8 @@ class TaskProvider extends ChangeNotifier {
       dueDate: dueDate,
       priority: priority,
       assignedToId: assignedToId,
-      createdById: createdById,
     );
-    await loadMyTasks(createdById);
+    await loadMyTasks(assignedToId);
   }
 
   Future<void> updateTask(TaskModel task, String currentUserId) async {
@@ -63,7 +61,7 @@ class TaskProvider extends ChangeNotifier {
   }
 
   Future<void> toggleStatus(TaskModel task, String currentUserId) async {
-    await _repo.toggleStatus(task);
+    await _repo.toggleStatus(task.id);
     await loadMyTasks(currentUserId);
   }
 

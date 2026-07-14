@@ -1,39 +1,49 @@
-enum UserRole { admin, member }
+enum FamilyRole { padre, madre, hijo, hija, abuelo, abuela, tio, tia, otro }
+
+extension FamilyRoleX on FamilyRole {
+  String get label {
+    switch (this) {
+      case FamilyRole.padre: return 'Padre';
+      case FamilyRole.madre: return 'Madre';
+      case FamilyRole.hijo: return 'Hijo';
+      case FamilyRole.hija: return 'Hija';
+      case FamilyRole.abuelo: return 'Abuelo';
+      case FamilyRole.abuela: return 'Abuela';
+      case FamilyRole.tio: return 'Tío';
+      case FamilyRole.tia: return 'Tía';
+      case FamilyRole.otro: return 'Otro';
+    }
+  }
+
+  bool get isGuardian => this == FamilyRole.padre || this == FamilyRole.madre;
+}
 
 class UserModel {
   final String id;
   final String name;
   final String email;
-  final String passwordHash;
-  final UserRole role;
-  final String avatarInitial; // usamos inicial del nombre como "avatar"
+  final FamilyRole role;
+  final String familyId;
+  final String avatarInitial;
 
   UserModel({
     required this.id,
     required this.name,
     required this.email,
-    required this.passwordHash,
     required this.role,
-    String? avatarInitial,
-  }) : avatarInitial = avatarInitial ?? (name.isNotEmpty ? name[0].toUpperCase() : '?');
+    required this.familyId,
+  }) : avatarInitial = name.isNotEmpty ? name[0].toUpperCase() : '?';
 
-  factory UserModel.fromMap(Map<String, dynamic> map) {
+  factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      id: map['id'] as String,
-      name: map['name'] as String,
-      email: map['email'] as String,
-      passwordHash: map['password_hash'] as String,
-      role: (map['role'] as String) == 'admin' ? UserRole.admin : UserRole.member,
+      id: json['id'] as String,
+      name: json['name'] as String,
+      email: json['email'] as String,
+      role: FamilyRole.values.firstWhere(
+        (r) => r.name == json['role'],
+        orElse: () => FamilyRole.otro,
+      ),
+      familyId: json['familyId'] as String,
     );
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'name': name,
-      'email': email,
-      'password_hash': passwordHash,
-      'role': role == UserRole.admin ? 'admin' : 'member',
-    };
   }
 }

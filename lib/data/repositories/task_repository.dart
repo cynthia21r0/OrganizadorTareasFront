@@ -1,80 +1,57 @@
-import 'package:uuid/uuid.dart';
+import '../../core/network/api_client.dart';
 import '../models/task_model.dart';
-import '../services/database_service.dart';
 
 class TaskRepository {
-  final _db = DatabaseService.instance;
-  final _uuid = const Uuid();
+  final _dio = ApiClient.instance.dio;
 
-  /// CREATE
   Future<TaskModel> createTask({
     required String title,
     required String description,
     required DateTime dueDate,
     required TaskPriority priority,
     required String assignedToId,
-    required String createdById,
   }) async {
-    final db = await _db.database;
-    final task = TaskModel(
-      id: _uuid.v4(),
-      title: title.trim(),
-      description: description.trim(),
-      dueDate: dueDate,
-      priority: priority,
-      status: TaskStatus.pendiente,
-      assignedToId: assignedToId,
-      createdById: createdById,
+    final res = await _dio.post('/tasks', data: {
+      'title': title,
+      'description': description,
+      'dueDate': dueDate.toIso8601String(),
+      'priority': priority.name,
+      'assignedToId': assignedToId,
+    });
+    return TaskModel.fromJson(res.data);
+  }
+
+  Future<List<TaskModel>> getTasksByUser(String userId, {DateTime? day}) async {
+    final res = await _dio.get(
+      '/tasks/user/$userId',
+      queryParameters: day != null ? {'day': day.toIso8601String().split('T').first} : null,
     );
-    await db.insert('tasks', task.toMap());
-    return task;
+    return (res.data as List).map((m) => TaskModel.fromJson(m)).toList();
   }
 
-  /// READ - todas las tareas de un usuario específico
-  Future<List<TaskModel>> getTasksByUser(String userId) async {
-    final db = await _db.database;
-    final results = await db.query(
-      'tasks',
-      where: 'assigned_to_id = ?',
-      whereArgs: [userId],
-      orderBy: 'due_date ASC',
-    );
-    return results.map((m) => TaskModel.fromMap(m)).toList();
-  }
-
-  /// READ - tareas de un usuario filtradas por un día específico
-  /// (para la vista "tareas por día").
-  Future<List<TaskModel>> getTasksByUserAndDate(String userId, DateTime day) async {
-    final all = await getTasksByUser(userId);
-    return all.where((t) =>
-        t.dueDate.year == day.year &&
-        t.dueDate.month == day.month &&
-        t.dueDate.day == day.day).toList();
-  }
-
-  /// READ - todas las tareas de la familia (para el panel de administrador)
   Future<List<TaskModel>> getAllTasks() async {
-    final db = await _db.database;
-    final results = await db.query('tasks', orderBy: 'due_date ASC');
-    return results.map((m) => TaskModel.fromMap(m)).toList();
+    final res = await _dio.get('/tasks');
+    return (res.data as List).map((m) => TaskModel.fromJson(m)).toList();
   }
 
-  /// UPDATE - edición general de la tarea
-  Future<void> updateTask(TaskModel task) async {
-    final db = await _db.database;
-    await db.update('tasks', task.toMap(), where: 'id = ?', whereArgs: [task.id]);
+  Future<TaskModel> updateTask(TaskModel task) async {
+    final res = await _dio.patch('/tasks/${task.id}', data: {
+      'title': task.title,
+      'description': task.description,
+      'dueDate': task.dueDate.toIso8601String(),
+      'priority': task.priority.name,
+      'assignedToId': task.assignedToId,
+      'status': task.status.name,
+    });
+    return TaskModel.fromJson(res.data);
   }
 
-  /// UPDATE - cambio rápido de estado (tap en el círculo de la tarjeta)
-  Future<void> toggleStatus(TaskModel task) async {
-    final newStatus =
-        task.status == TaskStatus.pendiente ? TaskStatus.completada : TaskStatus.pendiente;
-    await updateTask(task.copyWith(status: newStatus));
+  Future<TaskModel> toggleStatus(String taskId) async {
+    final res = await _dio.patch('/tasks/$taskId/toggle');
+    return TaskModel.fromJson(res.data);
   }
 
-  /// DELETE
   Future<void> deleteTask(String id) async {
-    final db = await _db.database;
-    await db.delete('tasks', where: 'id = ?', whereArgs: [id]);
+    await _dio.delete('/tasks/$id');
   }
 }
