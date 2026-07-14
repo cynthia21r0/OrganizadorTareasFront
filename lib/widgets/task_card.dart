@@ -60,10 +60,17 @@ class TaskCard extends StatelessWidget {
         color: isCompleted ? AppColors.completedBg : AppColors.cardWhite,
         borderRadius: BorderRadius.circular(16),
         border: Border(
-          left: BorderSide(color: isCompleted ? AppColors.completedCheck : _priorityColor, width: 4),
+          left: BorderSide(
+            color: isCompleted ? AppColors.completedCheck : _priorityColor,
+            width: 4,
+          ),
         ),
         boxShadow: const [
-          BoxShadow(color: Color(0x0F000000), blurRadius: 8, offset: Offset(0, 3)),
+          BoxShadow(
+            color: Color(0x0F000000),
+            blurRadius: 8,
+            offset: Offset(0, 3),
+          ),
         ],
       ),
       padding: const EdgeInsets.all(14),
@@ -78,9 +85,13 @@ class TaskCard extends StatelessWidget {
               margin: const EdgeInsets.only(top: 2),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: isCompleted ? AppColors.completedCheck : Colors.transparent,
+                color: isCompleted
+                    ? AppColors.completedCheck
+                    : Colors.transparent,
                 border: Border.all(
-                  color: isCompleted ? AppColors.completedCheck : AppColors.textSecondary,
+                  color: isCompleted
+                      ? AppColors.completedCheck
+                      : AppColors.textSecondary,
                   width: 2,
                 ),
               ),
@@ -107,7 +118,10 @@ class TaskCard extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     task.description,
-                    style: const TextStyle(fontSize: 12.5, color: AppColors.textSecondary),
+                    style: const TextStyle(
+                      fontSize: 12.5,
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                 ],
                 const SizedBox(height: 8),
@@ -117,8 +131,12 @@ class TaskCard extends StatelessWidget {
                   children: [
                     _chip(
                       isCompleted ? '✓ Completada' : 'Pendiente',
-                      isCompleted ? AppColors.completedBg : AppColors.pendingChipBg,
-                      isCompleted ? AppColors.completedCheck : AppColors.pendingChipText,
+                      isCompleted
+                          ? AppColors.completedBg
+                          : AppColors.pendingChipBg,
+                      isCompleted
+                          ? AppColors.completedCheck
+                          : AppColors.pendingChipText,
                     ),
                     _chip(_priorityLabel, _priorityBg, _priorityColor),
                     _chip(
@@ -135,12 +153,20 @@ class TaskCard extends StatelessWidget {
           Column(
             children: [
               IconButton(
-                icon: const Icon(Icons.edit, size: 19, color: AppColors.summaryCardEnd),
+                icon: const Icon(
+                  Icons.edit,
+                  size: 19,
+                  color: AppColors.summaryCardEnd,
+                ),
                 onPressed: onEdit,
                 visualDensity: VisualDensity.compact,
               ),
               IconButton(
-                icon: const Icon(Icons.delete, size: 19, color: AppColors.priorityHigh),
+                icon: const Icon(
+                  Icons.delete,
+                  size: 19,
+                  color: AppColors.priorityHigh,
+                ),
                 onPressed: onDelete,
                 visualDensity: VisualDensity.compact,
               ),
@@ -154,7 +180,10 @@ class TaskCard extends StatelessWidget {
   Widget _chip(String label, Color bg, Color fg, {IconData? icon}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(20)),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(20),
+      ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -162,7 +191,14 @@ class TaskCard extends StatelessWidget {
             Icon(icon, size: 11, color: fg),
             const SizedBox(width: 3),
           ],
-          Text(label, style: TextStyle(fontSize: 11, color: fg, fontWeight: FontWeight.w600)),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11,
+              color: fg,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ],
       ),
     );

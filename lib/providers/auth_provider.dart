@@ -16,35 +16,35 @@ class AuthProvider extends ChangeNotifier {
   bool get isLoggedIn => _currentUser != null;
 
   Future<bool> register({
-  required String name,
-  required String email,
-  required String password,
-  required FamilyRole role,
-  String? familyName,
-  String? inviteCode,
-}) async {
-  isLoading = true;
-  errorMessage = null;
-  notifyListeners();
-  try {
-    final result = await _repo.register(
-      name: name,
-      email: email,
-      password: password,
-      role: role,
-      familyName: familyName,
-      inviteCode: inviteCode,
-    );
-    lastInviteCode = result.inviteCode;
-    return true;
-  } catch (e) {
-    errorMessage = e.toString().replaceFirst('Exception: ', '');
-    return false;
-  } finally {
-    isLoading = false;
+    required String name,
+    required String email,
+    required String password,
+    required FamilyRole role,
+    String? familyName,
+    String? inviteCode,
+  }) async {
+    isLoading = true;
+    errorMessage = null;
     notifyListeners();
+    try {
+      final result = await _repo.register(
+        name: name,
+        email: email,
+        password: password,
+        role: role,
+        familyName: familyName,
+        inviteCode: inviteCode,
+      );
+      lastInviteCode = result.inviteCode;
+      return true;
+    } catch (e) {
+      errorMessage = e.toString().replaceFirst('Exception: ', '');
+      return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
   }
-}
 
   Future<bool> login(String email, String password) async {
     isLoading = true;
@@ -69,7 +69,27 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Permite cambiar de cuenta localmente (flujo "Cambiar cuenta" del diseño)
+  Future<void> updateProfilePicture(String base64Image) async {
+    if (_currentUser == null) return;
+
+    try {
+      final updatedUser = await _repo.updateProfilePicture(base64Image);
+
+      _currentUser = updatedUser;
+
+      final index = _familyMembers.indexWhere((m) => m.id == updatedUser.id);
+      if (index != -1) {
+        _familyMembers[index] = updatedUser;
+      }
+
+      notifyListeners();
+    } catch (e) {
+      errorMessage = e.toString().replaceFirst('Exception: ', '');
+      notifyListeners();
+      rethrow;
+    }
+  }
+
   void switchAccount(UserModel user) {
     _currentUser = user;
     notifyListeners();

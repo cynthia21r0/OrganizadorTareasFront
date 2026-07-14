@@ -9,7 +9,8 @@ class Validators {
   }
 
   static String? email(String? value) {
-    if (value == null || value.trim().isEmpty) return 'El correo es obligatorio';
+    if (value == null || value.trim().isEmpty)
+      return 'El correo es obligatorio';
     final regex = RegExp(r'^[\w\.\-]+@([\w\-]+\.)+[\w\-]{2,4}$');
     if (!regex.hasMatch(value.trim())) return 'Correo no válido';
     return null;

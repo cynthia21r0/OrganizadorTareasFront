@@ -62,7 +62,6 @@ class TaskModel {
     );
   }
 
-
   Map<String, dynamic> toMap() {
     return {
       'id': id,

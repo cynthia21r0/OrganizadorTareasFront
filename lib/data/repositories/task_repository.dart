@@ -11,20 +11,25 @@ class TaskRepository {
     required TaskPriority priority,
     required String assignedToId,
   }) async {
-    final res = await _dio.post('/tasks', data: {
-      'title': title,
-      'description': description,
-      'dueDate': dueDate.toIso8601String(),
-      'priority': priority.name,
-      'assignedToId': assignedToId,
-    });
+    final res = await _dio.post(
+      '/tasks',
+      data: {
+        'title': title,
+        'description': description,
+        'dueDate': dueDate.toIso8601String(),
+        'priority': priority.name,
+        'assignedToId': assignedToId,
+      },
+    );
     return TaskModel.fromJson(res.data);
   }
 
   Future<List<TaskModel>> getTasksByUser(String userId, {DateTime? day}) async {
     final res = await _dio.get(
       '/tasks/user/$userId',
-      queryParameters: day != null ? {'day': day.toIso8601String().split('T').first} : null,
+      queryParameters: day != null
+          ? {'day': day.toIso8601String().split('T').first}
+          : null,
     );
     return (res.data as List).map((m) => TaskModel.fromJson(m)).toList();
   }
@@ -35,14 +40,17 @@ class TaskRepository {
   }
 
   Future<TaskModel> updateTask(TaskModel task) async {
-    final res = await _dio.patch('/tasks/${task.id}', data: {
-      'title': task.title,
-      'description': task.description,
-      'dueDate': task.dueDate.toIso8601String(),
-      'priority': task.priority.name,
-      'assignedToId': task.assignedToId,
-      'status': task.status.name,
-    });
+    final res = await _dio.patch(
+      '/tasks/${task.id}',
+      data: {
+        'title': task.title,
+        'description': task.description,
+        'dueDate': task.dueDate.toIso8601String(),
+        'priority': task.priority.name,
+        'assignedToId': task.assignedToId,
+        'status': task.status.name,
+      },
+    );
     return TaskModel.fromJson(res.data);
   }
 

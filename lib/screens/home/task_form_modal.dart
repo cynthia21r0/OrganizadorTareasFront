@@ -8,8 +8,6 @@ import '../../data/models/user_model.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/task_provider.dart';
 
-/// Muestra el modal de creación/edición de tarea.
-/// [taskToEdit] es null cuando se está creando una tarea nueva.
 Future<void> showTaskFormModal(BuildContext context, {TaskModel? taskToEdit}) {
   return showModalBottomSheet(
     context: context,
@@ -47,7 +45,6 @@ class _TaskFormModalState extends State<TaskFormModal> {
     _priority = t?.priority ?? TaskPriority.media;
     _assignedToId = t?.assignedToId;
 
-    // Si no es guardián, la tarea siempre se autoasigna (sin mostrar dropdown)
     final auth = context.read<AuthProvider>();
     if (!auth.currentUser!.role.isGuardian) {
       _assignedToId = auth.currentUser!.id;
@@ -107,7 +104,9 @@ class _TaskFormModalState extends State<TaskFormModal> {
     final isGuardian = auth.currentUser!.role.isGuardian;
 
     return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
       child: Container(
         decoration: const BoxDecoration(
           color: AppColors.background,
@@ -126,12 +125,21 @@ class _TaskFormModalState extends State<TaskFormModal> {
                   child: Container(
                     width: 40,
                     height: 4,
-                    decoration: BoxDecoration(color: Colors.black12, borderRadius: BorderRadius.circular(4)),
+                    decoration: BoxDecoration(
+                      color: Colors.black12,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 16),
-                Text(_isEditing ? 'Editar tarea' : 'Nueva tarea',
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                Text(
+                  _isEditing ? 'Editar tarea' : 'Nueva tarea',
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
                 const SizedBox(height: 20),
                 TextFormField(
                   controller: _titleCtrl,
@@ -149,12 +157,23 @@ class _TaskFormModalState extends State<TaskFormModal> {
                   onTap: _pickDate,
                   borderRadius: BorderRadius.circular(14),
                   child: InputDecorator(
-                    decoration: const InputDecoration(labelText: 'Fecha límite', prefixIcon: Icon(Icons.calendar_today_outlined)),
-                    child: Text(DateFormat('dd MMM yyyy', 'es').format(_dueDate)),
+                    decoration: const InputDecoration(
+                      labelText: 'Fecha límite',
+                      prefixIcon: Icon(Icons.calendar_today_outlined),
+                    ),
+                    child: Text(
+                      DateFormat('dd MMM yyyy', 'es').format(_dueDate),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 14),
-                Text('Prioridad', style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+                Text(
+                  'Prioridad',
+                  style: TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 13,
+                  ),
+                ),
                 const SizedBox(height: 8),
                 Row(
                   children: TaskPriority.values.map((p) {
@@ -181,8 +200,13 @@ class _TaskFormModalState extends State<TaskFormModal> {
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(color: color, width: 1.4),
                           ),
-                          child: Text(label,
-                              style: TextStyle(color: selected ? Colors.white : color, fontWeight: FontWeight.w600)),
+                          child: Text(
+                            label,
+                            style: TextStyle(
+                              color: selected ? Colors.white : color,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
                       ),
                     );
@@ -190,20 +214,37 @@ class _TaskFormModalState extends State<TaskFormModal> {
                 ),
                 const SizedBox(height: 14),
                 if (isGuardian && members.isNotEmpty) ...[
-                  Text('Asignar a', style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+                  Text(
+                    'Asignar a',
+                    style: TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 13,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   DropdownButtonFormField<String>(
                     value: _assignedToId ?? auth.currentUser?.id,
-                    items: members.map((m) => DropdownMenuItem(value: m.id, child: Text(m.name))).toList(),
+                    items: members
+                        .map(
+                          (m) => DropdownMenuItem(
+                            value: m.id,
+                            child: Text(m.name),
+                          ),
+                        )
+                        .toList(),
                     onChanged: (v) => setState(() => _assignedToId = v),
-                    decoration: const InputDecoration(prefixIcon: Icon(Icons.person_pin_circle_outlined)),
+                    decoration: const InputDecoration(
+                      prefixIcon: Icon(Icons.person_pin_circle_outlined),
+                    ),
                   ),
                   const SizedBox(height: 20),
                 ],
                 ElevatedButton(
                   onPressed: isTitleValid ? _submit : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: isTitleValid ? AppColors.fabPurple : Colors.grey.shade300,
+                    backgroundColor: isTitleValid
+                        ? AppColors.fabPurple
+                        : Colors.grey.shade300,
                   ),
                   child: Text(_isEditing ? 'Guardar cambios' : 'Crear tarea'),
                 ),

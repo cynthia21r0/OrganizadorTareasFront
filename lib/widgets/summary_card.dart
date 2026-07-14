@@ -28,17 +28,28 @@ class SummaryCard extends StatelessWidget {
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: const [
-          BoxShadow(color: Color(0x336FA3EE), blurRadius: 14, offset: Offset(0, 6)),
+          BoxShadow(
+            color: Color(0x336FA3EE),
+            blurRadius: 14,
+            offset: Offset(0, 6),
+          ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Tareas pendientes', style: TextStyle(color: Colors.white70, fontSize: 13)),
+          const Text(
+            'Tareas pendientes',
+            style: TextStyle(color: Colors.white70, fontSize: 13),
+          ),
           const SizedBox(height: 4),
           Text(
             '$pending',
-            style: const TextStyle(color: Colors.white, fontSize: 34, fontWeight: FontWeight.bold),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 34,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: 6),
           Text(

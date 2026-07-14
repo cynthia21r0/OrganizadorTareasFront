@@ -3,15 +3,24 @@ enum FamilyRole { padre, madre, hijo, hija, abuelo, abuela, tio, tia, otro }
 extension FamilyRoleX on FamilyRole {
   String get label {
     switch (this) {
-      case FamilyRole.padre: return 'Padre';
-      case FamilyRole.madre: return 'Madre';
-      case FamilyRole.hijo: return 'Hijo';
-      case FamilyRole.hija: return 'Hija';
-      case FamilyRole.abuelo: return 'Abuelo';
-      case FamilyRole.abuela: return 'Abuela';
-      case FamilyRole.tio: return 'Tío';
-      case FamilyRole.tia: return 'Tía';
-      case FamilyRole.otro: return 'Otro';
+      case FamilyRole.padre:
+        return 'Padre';
+      case FamilyRole.madre:
+        return 'Madre';
+      case FamilyRole.hijo:
+        return 'Hijo';
+      case FamilyRole.hija:
+        return 'Hija';
+      case FamilyRole.abuelo:
+        return 'Abuelo';
+      case FamilyRole.abuela:
+        return 'Abuela';
+      case FamilyRole.tio:
+        return 'Tío';
+      case FamilyRole.tia:
+        return 'Tía';
+      case FamilyRole.otro:
+        return 'Otro';
     }
   }
 
@@ -25,6 +34,8 @@ class UserModel {
   final FamilyRole role;
   final String familyId;
   final String avatarInitial;
+  final String? profilePicture;
+  final String? familyInviteCode;
 
   UserModel({
     required this.id,
@@ -32,6 +43,8 @@ class UserModel {
     required this.email,
     required this.role,
     required this.familyId,
+    this.profilePicture,
+    this.familyInviteCode,
   }) : avatarInitial = name.isNotEmpty ? name[0].toUpperCase() : '?';
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -44,6 +57,8 @@ class UserModel {
         orElse: () => FamilyRole.otro,
       ),
       familyId: json['familyId'] as String,
+      profilePicture: json['profilePicture'] as String?,
+      familyInviteCode: json['familyInviteCode'] as String?,
     );
   }
 }

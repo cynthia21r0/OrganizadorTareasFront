@@ -4,8 +4,6 @@ import '../family/family_screen.dart';
 import '../profile/profile_screen.dart';
 import 'home_screen.dart';
 
-/// Contenedor persistente que aloja las 3 pantallas principales
-/// y la barra de navegación inferior (según el diseño de Figma).
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
 
@@ -16,11 +14,7 @@ class MainShell extends StatefulWidget {
 class _MainShellState extends State<MainShell> {
   int _index = 0;
 
-  final _screens = const [
-    HomeScreen(),
-    FamilyScreen(),
-    ProfileScreen(),
-  ];
+  final _screens = const [HomeScreen(), FamilyScreen(), ProfileScreen()];
 
   @override
   Widget build(BuildContext context) {

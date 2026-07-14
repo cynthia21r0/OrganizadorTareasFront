@@ -9,7 +9,7 @@ import 'screens/auth/login_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeDateFormatting('es'); // permite formatear fechas en español
+  await initializeDateFormatting('es');
   runApp(const GestorTareasApp());
 }
 

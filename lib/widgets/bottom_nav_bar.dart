@@ -5,7 +5,11 @@ class AppBottomNavBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
 
-  const AppBottomNavBar({super.key, required this.currentIndex, required this.onTap});
+  const AppBottomNavBar({
+    super.key,
+    required this.currentIndex,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +17,13 @@ class AppBottomNavBar extends StatelessWidget {
       decoration: const BoxDecoration(
         color: AppColors.navBackground,
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        boxShadow: [BoxShadow(color: Color(0x14000000), blurRadius: 12, offset: Offset(0, -3))],
+        boxShadow: [
+          BoxShadow(
+            color: Color(0x14000000),
+            blurRadius: 12,
+            offset: Offset(0, -3),
+          ),
+        ],
       ),
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
       child: SafeArea(
@@ -44,7 +54,11 @@ class AppBottomNavBar extends StatelessWidget {
               color: isActive ? AppColors.navActiveBg : Colors.transparent,
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, color: isActive ? AppColors.navActive : AppColors.navInactive, size: 24),
+            child: Icon(
+              icon,
+              color: isActive ? AppColors.navActive : AppColors.navInactive,
+              size: 24,
+            ),
           ),
           const SizedBox(height: 2),
           Text(
