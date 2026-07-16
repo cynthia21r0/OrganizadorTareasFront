@@ -1,4 +1,6 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
+import 'api_exception.dart';
 
 class ApiClient {
   ApiClient._internal() {
@@ -16,6 +18,25 @@ class ApiClient {
             options.headers['Authorization'] = 'Bearer $token';
           }
           handler.next(options);
+        },
+        onError: (DioException e, handler) {
+          final friendlyMessage = buildFriendlyMessage(e);
+
+          if (kDebugMode) {
+            debugPrint(
+              '[API ERROR] ${e.requestOptions.method} ${e.requestOptions.path} '
+              '-> ${e.response?.statusCode}: $friendlyMessage',
+            );
+          }
+
+          handler.reject(
+            ApiException(
+              friendlyMessage: friendlyMessage,
+              requestOptions: e.requestOptions,
+              response: e.response,
+              type: e.type,
+            ),
+          );
         },
       ),
     );
