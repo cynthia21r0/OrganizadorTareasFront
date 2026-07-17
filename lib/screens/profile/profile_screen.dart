@@ -10,7 +10,6 @@ import '../../providers/task_provider.dart';
 import '../auth/login_screen.dart';
 import 'edit_profile_screen.dart';
 
-
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
@@ -28,13 +27,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _load() async {
-  final auth = context.read<AuthProvider>();
-  await auth.refreshFamilyMembers();
-  if (!mounted) return;
-  if (auth.currentUser != null) {
-    await context.read<TaskProvider>().loadMyTasks(auth.currentUser!.id);
+    final auth = context.read<AuthProvider>();
+    await auth.refreshFamilyMembers();
+    if (!mounted) return;
+    if (auth.currentUser != null) {
+      await context.read<TaskProvider>().loadMyTasks(auth.currentUser!.id);
+    }
   }
-}
 
   Future<void> _pickAndUploadImage() async {
     final picker = ImagePicker();
@@ -87,17 +86,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-  title: const Text('Perfil'),
-  actions: [
-    IconButton(
-      icon: const Icon(Icons.edit_outlined),
-      tooltip: 'Editar perfil',
-      onPressed: () => Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => const EditProfileScreen()),
+        title: const Text('Perfil'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.edit_outlined),
+            tooltip: 'Editar perfil',
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const EditProfileScreen()),
+            ),
+          ),
+        ],
       ),
-    ),
-  ],
-),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 40),
         children: [
@@ -244,6 +243,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
 
+          const SizedBox(height: 16),
+
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.groups_outlined,
+                  color: AppColors.summaryCardEnd,
+                ),
+                const SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Familia',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      user.familyName ?? 'Sin nombre',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
           const SizedBox(height: 24),
           const Text(
             'Rendimiento',
