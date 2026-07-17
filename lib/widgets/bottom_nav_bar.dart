@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../core/theme/app_colors.dart';
+import '../providers/notification_provider.dart';
 
 class AppBottomNavBar extends StatelessWidget {
   final int currentIndex;
@@ -31,16 +33,18 @@ class AppBottomNavBar extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _navItem(0, Icons.home_rounded, 'Inicio'),
-            _navItem(1, Icons.groups_rounded, 'Familia'),
-            _navItem(2, Icons.person_rounded, 'Perfil'),
+            _navItem(context, 0, Icons.home_rounded, 'Inicio'),
+            _navItem(context, 1, Icons.groups_rounded, 'Familia'),
+            _notifItem(context),
+            _navItem(context, 3, Icons.person_rounded, 'Perfil'),
           ],
         ),
       ),
     );
   }
 
-  Widget _navItem(int index, IconData icon, String label) {
+  Widget _navItem(
+      BuildContext context, int index, IconData icon, String label) {
     final isActive = index == currentIndex;
     return GestureDetector(
       onTap: () => onTap(index),
@@ -63,6 +67,81 @@ class AppBottomNavBar extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             label,
+            style: TextStyle(
+              fontSize: 11.5,
+              color: isActive ? AppColors.navActive : AppColors.navInactive,
+              fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _notifItem(BuildContext context) {
+    const index = 2;
+    final isActive = index == currentIndex;
+    return GestureDetector(
+      onTap: () => onTap(index),
+      behavior: HitTestBehavior.opaque,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: isActive ? AppColors.navActiveBg : Colors.transparent,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.notifications_rounded,
+                  color: isActive ? AppColors.navActive : AppColors.navInactive,
+                  size: 24,
+                ),
+              ),
+              // Badge de notificaciones no leídas
+              Consumer<NotificationProvider>(
+                builder: (_, prov, child) {
+                  if (prov.unreadCount == 0) return const SizedBox.shrink();
+                  return Positioned(
+                    top: -2,
+                    right: -2,
+                    child: Container(
+                      padding: const EdgeInsets.all(3),
+                      decoration: BoxDecoration(
+                        color: AppColors.error,
+                        shape: prov.unreadCount > 9
+                            ? BoxShape.rectangle
+                            : BoxShape.circle,
+                        borderRadius: prov.unreadCount > 9
+                            ? BorderRadius.circular(8)
+                            : null,
+                        border: Border.all(color: Colors.white, width: 1.5),
+                      ),
+                      constraints:
+                          const BoxConstraints(minWidth: 16, minHeight: 16),
+                      child: Text(
+                        prov.unreadCount > 99 ? '99+' : '${prov.unreadCount}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 9,
+                          fontWeight: FontWeight.w800,
+                          height: 1,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 2),
+          Text(
+            'Alertas',
             style: TextStyle(
               fontSize: 11.5,
               color: isActive ? AppColors.navActive : AppColors.navInactive,
