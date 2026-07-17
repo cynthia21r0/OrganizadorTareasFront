@@ -53,11 +53,16 @@ class TaskCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isCompleted = task.status == TaskStatus.completada;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final cardBg = isCompleted
+        ? (isDark ? const Color(0xFF1B2A22) : AppColors.completedBg)
+        : Theme.of(context).cardColor;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: isCompleted ? AppColors.completedBg : AppColors.cardWhite,
+        color: cardBg,
         borderRadius: BorderRadius.circular(16),
         border: Border(
           left: BorderSide(
@@ -111,16 +116,16 @@ class TaskCard extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                     fontSize: 15,
                     decoration: isCompleted ? TextDecoration.lineThrough : null,
-                    color: AppColors.textPrimary,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 if (task.description.isNotEmpty) ...[
                   const SizedBox(height: 2),
                   Text(
                     task.description,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12.5,
-                      color: AppColors.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
                   ),
                 ],
@@ -132,17 +137,17 @@ class TaskCard extends StatelessWidget {
                     _chip(
                       isCompleted ? '✓ Completada' : 'Pendiente',
                       isCompleted
-                          ? AppColors.completedBg
-                          : AppColors.pendingChipBg,
+                          ? (isDark ? const Color(0xFF1B2A22) : AppColors.completedBg)
+                          : (isDark ? Colors.white10 : AppColors.pendingChipBg),
                       isCompleted
                           ? AppColors.completedCheck
-                          : AppColors.pendingChipText,
+                          : (isDark ? Colors.white70 : AppColors.pendingChipText),
                     ),
-                    _chip(_priorityLabel, _priorityBg, _priorityColor),
+                    _chip(_priorityLabel, _priorityBg, _priorityColor, isDark: isDark),
                     _chip(
                       DateFormat('dd MMM', 'es').format(task.dueDate),
-                      AppColors.background,
-                      AppColors.textSecondary,
+                      Theme.of(context).scaffoldBackgroundColor,
+                      Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                       icon: Icons.schedule,
                     ),
                   ],
@@ -153,10 +158,10 @@ class TaskCard extends StatelessWidget {
           Column(
             children: [
               IconButton(
-                icon: const Icon(
+                icon: Icon(
                   Icons.edit,
                   size: 19,
-                  color: AppColors.summaryCardEnd,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
                 onPressed: onEdit,
                 visualDensity: VisualDensity.compact,
@@ -177,11 +182,14 @@ class TaskCard extends StatelessWidget {
     );
   }
 
-  Widget _chip(String label, Color bg, Color fg, {IconData? icon}) {
+  Widget _chip(String label, Color bg, Color fg, {IconData? icon, bool isDark = false}) {
+    // Si estamos en modo oscuro y es un fondo claro como priorityBg, lo atenuamos
+    final finalBg = isDark ? fg.withValues(alpha: 0.15) : bg;
+    
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: bg,
+        color: finalBg,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(

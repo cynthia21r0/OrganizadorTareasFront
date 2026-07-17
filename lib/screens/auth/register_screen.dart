@@ -95,9 +95,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     if (!_formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
+        SnackBar(
           content: Text('Revisa los campos marcados en rojo.'),
-          backgroundColor: AppColors.error,
+          backgroundColor: Theme.of(context).colorScheme.error,
         ),
       );
       return;
@@ -131,7 +131,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(auth.errorMessage ?? 'Error al registrarte.'),
-          backgroundColor: AppColors.error,
+          backgroundColor: Theme.of(context).colorScheme.error,
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -166,14 +166,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
             isMet ? Icons.check_circle : Icons.radio_button_unchecked,
             color: isMet
                 ? Colors.green
-                : AppColors.textSecondary.withOpacity(0.5),
+                : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
             size: 16,
           ),
           const SizedBox(width: 8),
           Text(
             text,
             style: TextStyle(
-              color: isMet ? Colors.green : AppColors.textSecondary,
+              color: isMet ? Colors.green : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
               fontSize: 12.5,
               decoration: isMet ? TextDecoration.lineThrough : null,
             ),
@@ -188,7 +188,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final auth = context.watch<AuthProvider>();
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(title: const Text('Crear cuenta'), elevation: 0),
       body: SafeArea(
         child: GestureDetector(
@@ -202,19 +202,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 physics: const BouncingScrollPhysics(),
                 children: [
                   const SizedBox(height: 16),
-                  const Text(
+                  Text(
                     '¡Comencemos!',
                     style: TextStyle(
                       fontSize: 26,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
-                  const Text(
+                  Text(
                     'Configura tu espacio familiar en pocos pasos.',
                     style: TextStyle(
                       fontSize: 14,
-                      color: AppColors.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
                   ),
                   const SizedBox(height: 24),

@@ -304,12 +304,12 @@ class _HomeScreenState extends State<HomeScreen> {
           Icon(
             Icons.task_alt,
             size: 56,
-            color: AppColors.textSecondary.withOpacity(0.4),
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
           ),
           const SizedBox(height: 12),
-          const Text(
+          Text(
             'Sin tareas asignadas',
-            style: TextStyle(color: AppColors.textSecondary),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
           ),
         ],
       ),
@@ -353,9 +353,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 }
               }
             },
-            child: const Text(
+            child: Text(
               'Eliminar',
-              style: TextStyle(color: AppColors.error),
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
           ),
         ],
