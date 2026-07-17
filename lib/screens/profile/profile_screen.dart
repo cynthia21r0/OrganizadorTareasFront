@@ -86,8 +86,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (user == null) return const SizedBox.shrink();
     final String inviteCode = user.familyInviteCode ?? 'Sin código';
 
+
+    final cardColor = Theme.of(context).cardColor;
+    final textColor = Theme.of(context).colorScheme.onSurface;
+    final textSecondaryColor = textColor.withValues(alpha: 0.6);
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Perfil'),
         actions: [
@@ -106,7 +111,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Container(
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: cardColor,
               borderRadius: BorderRadius.circular(18),
             ),
             child: Row(
@@ -161,16 +166,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     children: [
                       Text(
                         user.name,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.bold,
+                          color: textColor,
                         ),
                       ),
                       Text(
                         user.email,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12.5,
-                          color: AppColors.textSecondary,
+                          color: textSecondaryColor,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -204,7 +210,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: cardColor,
               borderRadius: BorderRadius.circular(18),
             ),
             child: Row(
@@ -213,20 +219,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Código de Invitación Familiar',
                       style: TextStyle(
                         fontSize: 13,
-                        color: AppColors.textSecondary,
+                        color: textSecondaryColor,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       inviteCode,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 2,
+                        color: textColor,
                       ),
                     ),
                   ],
@@ -251,7 +258,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: cardColor,
               borderRadius: BorderRadius.circular(18),
             ),
             child: Row(
@@ -264,19 +271,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Familia',
                       style: TextStyle(
                         fontSize: 13,
-                        color: AppColors.textSecondary,
+                        color: textSecondaryColor,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       user.familyName ?? 'Sin nombre',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
+                        color: textColor,
                       ),
                     ),
                   ],
@@ -285,12 +293,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           const SizedBox(height: 24),
-          const Text(
+          Text(
             'Rendimiento',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
+              color: textColor,
             ),
           ),
           const SizedBox(height: 12),
@@ -330,7 +338,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 padding: const EdgeInsets.symmetric(
                     horizontal: 18, vertical: 14),
                 decoration: BoxDecoration(
-                  color: isDark ? AppTheme.darkCard : Colors.white,
+                  color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(18),
                 ),
                 child: Column(
@@ -342,7 +350,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
                         color: isDark
-                            ? AppTheme.darkTextPrimary
+                            ? Theme.of(context).colorScheme.onSurface
                             : AppColors.textPrimary,
                       ),
                     ),
@@ -417,7 +425,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 padding: const EdgeInsets.symmetric(
                     horizontal: 18, vertical: 6),
                 decoration: BoxDecoration(
-                  color: isDark ? AppTheme.darkCard : Colors.white,
+                  color: Theme.of(context).cardColor,
                   borderRadius: BorderRadius.circular(18),
                 ),
                 child: Row(
@@ -452,7 +460,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
                               color: isDark
-                                  ? AppTheme.darkTextPrimary
+                                  ? Theme.of(context).colorScheme.onSurface
                                   : AppColors.textPrimary,
                             ),
                           ),
@@ -461,7 +469,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             style: TextStyle(
                               fontSize: 12,
                               color: isDark
-                                  ? AppTheme.darkTextSecondary
+                                  ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)
                                   : AppColors.textSecondary,
                             ),
                           ),

@@ -24,7 +24,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: CustomScrollView(
         slivers: [
           _buildAppBar(context),
@@ -46,10 +46,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           builder: (_, prov, child) => Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Text(
+              Text(
                 'Notificaciones',
                 style: TextStyle(
-                  color: AppColors.textPrimary,
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontWeight: FontWeight.w800,
                   fontSize: 22,
                 ),
@@ -60,7 +60,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: AppColors.navActive,
+                    color: Theme.of(context).colorScheme.error,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
@@ -77,9 +77,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           ),
         ),
         background: Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Color(0xFF6FA3EE), Color(0xFF5B8DEE)],
+              colors: [
+                Theme.of(context).colorScheme.primary.withValues(alpha: 0.7),
+                Theme.of(context).colorScheme.primary,
+              ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -109,9 +112,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     return Consumer<NotificationProvider>(
       builder: (_, prov, child) {
         if (prov.isLoading) {
-          return const SliverFillRemaining(
+          return SliverFillRemaining(
             child: Center(
-              child: CircularProgressIndicator(color: AppColors.navActive),
+              child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
             ),
           );
         }
@@ -165,11 +168,11 @@ class _NotificationCard extends StatelessWidget {
         duration: const Duration(milliseconds: 300),
         margin: const EdgeInsets.only(bottom: 10),
         decoration: BoxDecoration(
-          color: n.isRead ? AppColors.cardWhite : const Color(0xFFEEF4FF),
+          color: n.isRead ? Theme.of(context).cardColor : Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: n.isRead ? Colors.transparent
-                : AppColors.navActive.withValues(alpha: 0.25),
+                : Theme.of(context).colorScheme.primary.withValues(alpha: 0.25),
             width: 1.5,
           ),
           boxShadow: [
@@ -215,7 +218,7 @@ class _NotificationCard extends StatelessWidget {
                       n.message,
                       style: TextStyle(
                         fontSize: 14,
-                        color: AppColors.textPrimary,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontWeight:
                             n.isRead ? FontWeight.w400 : FontWeight.w600,
                         height: 1.35,
@@ -224,9 +227,9 @@ class _NotificationCard extends StatelessWidget {
                     const SizedBox(height: 6),
                     Text(
                       timeAgo,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11.5,
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                     ),
                   ],
@@ -239,8 +242,8 @@ class _NotificationCard extends StatelessWidget {
                   child: Container(
                     width: 8,
                     height: 8,
-                    decoration: const BoxDecoration(
-                      color: AppColors.navActive,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -314,31 +317,31 @@ class _EmptyState extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(28),
           decoration: BoxDecoration(
-            color: AppColors.navActiveBg,
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
             shape: BoxShape.circle,
           ),
-          child: const Icon(
+          child: Icon(
             Icons.notifications_none_rounded,
             size: 56,
-            color: AppColors.navActive,
+            color: Theme.of(context).colorScheme.primary,
           ),
         ),
         const SizedBox(height: 20),
-        const Text(
+        Text(
           'Sin notificaciones',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: AppColors.textPrimary,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         const SizedBox(height: 8),
-        const Text(
+        Text(
           'Aquí aparecerán tus alertas\nde tareas asignadas y vencimientos.',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 14,
-            color: AppColors.textSecondary,
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
             height: 1.5,
           ),
         ),

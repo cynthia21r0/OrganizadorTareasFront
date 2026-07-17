@@ -65,9 +65,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final avatarBytes = _decodedProfilePicture(user?.profilePicture);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       floatingActionButton: FloatingActionButton(
-        backgroundColor: AppColors.fabPurple,
+        backgroundColor: Theme.of(context).colorScheme.primary,
         onPressed: () async {
           await showTaskFormModal(context);
           await _loadTasks();
@@ -92,14 +92,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         const Text(
                           'Hola 👋',
-                          style: TextStyle(color: AppColors.textSecondary),
+                          style: TextStyle(color: Colors.grey),
                         ),
                         Text(
                           user?.name ?? '',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                       ],
@@ -107,7 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   CircleAvatar(
                     radius: 22,
-                    backgroundColor: AppColors.summaryCardEnd,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                     backgroundImage: avatarBytes != null
                         ? MemoryImage(avatarBytes)
                         : null,
@@ -136,18 +136,18 @@ class _HomeScreenState extends State<HomeScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     'Mis tareas',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   Text(
                     '${taskProvider.pendingCount} pendientes',
-                    style: const TextStyle(
-                      color: AppColors.textSecondary,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                       fontSize: 13,
                     ),
                   ),
@@ -242,7 +242,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Container(
         width: 56,
         decoration: BoxDecoration(
-          color: selected ? AppColors.summaryCardEnd : Colors.white,
+          color: selected ? Theme.of(context).colorScheme.primary : Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(16),
         ),
         alignment: Alignment.center,
@@ -253,7 +253,7 @@ class _HomeScreenState extends State<HomeScreen> {
               label,
               style: TextStyle(
                 fontSize: 11,
-                color: selected ? Colors.white70 : AppColors.textSecondary,
+                color: selected ? Colors.white70 : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
               ),
             ),
             if (number.isNotEmpty)
@@ -262,7 +262,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
-                  color: selected ? Colors.white : AppColors.textPrimary,
+                  color: selected ? Colors.white : Theme.of(context).colorScheme.onSurface,
                 ),
               ),
           ],
