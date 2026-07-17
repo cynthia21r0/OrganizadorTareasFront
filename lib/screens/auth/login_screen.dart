@@ -20,6 +20,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passFocus = FocusNode();
 
   bool _obscure = true;
+  String? _serverError;
 
   @override
   void initState() {
@@ -73,16 +74,10 @@ class _LoginScreenState extends State<LoginScreen> {
         context,
       ).pushReplacement(MaterialPageRoute(builder: (_) => const MainShell()));
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            auth.errorMessage ??
-                'Credenciales incorrectas. Inténtalo de nuevo.',
-          ),
-          backgroundColor: AppColors.error,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      setState(() {
+        _serverError =
+            auth.errorMessage ?? 'Credenciales incorrectas. Inténtalo de nuevo.';
+      });
     }
   }
 
@@ -158,11 +153,46 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 36),
 
+                    if (_serverError != null)
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 16),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.error.withOpacity(0.08),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: AppColors.error.withOpacity(0.4),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.error_outline,
+                              color: AppColors.error,
+                              size: 18,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                _serverError!,
+                                style: const TextStyle(
+                                  color: AppColors.error,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
                     TextFormField(
                       controller: _emailCtrl,
                       focusNode: _emailFocus,
                       keyboardType: TextInputType.emailAddress,
-                      onChanged: (_) => setState(() {}),
+                      onChanged: (_) => setState(() { _serverError = null; }),
                       decoration: InputDecoration(
                         labelText: 'Correo electrónico',
                         hintText: 'ejemplo@correo.com',
@@ -179,7 +209,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       controller: _passCtrl,
                       focusNode: _passFocus,
                       obscureText: _obscure,
-                      onChanged: (_) => setState(() {}),
+                      onChanged: (_) => setState(() { _serverError = null; }),
                       decoration: InputDecoration(
                         labelText: 'Contraseña',
                         helperText: _passFocus.hasFocus

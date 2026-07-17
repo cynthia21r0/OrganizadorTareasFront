@@ -19,6 +19,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   DateTime? _filterDay;
+  bool _loadError = false;
 
   String? _cachedProfilePictureSource;
   Uint8List? _cachedImageBytes;
@@ -33,11 +34,15 @@ class _HomeScreenState extends State<HomeScreen> {
     final auth = context.read<AuthProvider>();
     final taskProvider = context.read<TaskProvider>();
     if (auth.currentUser == null) return;
-
-    if (_filterDay == null) {
-      await taskProvider.loadMyTasks(auth.currentUser!.id);
-    } else {
-      await taskProvider.loadMyTasksByDay(auth.currentUser!.id, _filterDay!);
+    setState(() => _loadError = false);
+    try {
+      if (_filterDay == null) {
+        await taskProvider.loadMyTasks(auth.currentUser!.id);
+      } else {
+        await taskProvider.loadMyTasksByDay(auth.currentUser!.id, _filterDay!);
+      }
+    } catch (_) {
+      if (mounted) setState(() => _loadError = true);
     }
   }
 
@@ -154,6 +159,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   padding: EdgeInsets.only(top: 40),
                   child: Center(child: CircularProgressIndicator()),
                 )
+              else if (_loadError)
+                _errorState()
               else if (taskProvider.myTasks.isEmpty)
                 _emptyState()
               else
@@ -163,6 +170,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     task: task,
                     onToggle: () async {
                       await taskProvider.toggleStatus(task, user!.id);
+                      if (mounted && taskProvider.errorMessage != null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(taskProvider.errorMessage!),
+                            backgroundColor: AppColors.error,
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      }
                       await _loadTasks();
                       if (mounted) await taskProvider.loadAllTasks();
                     },
@@ -255,6 +271,31 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget _errorState() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 30),
+      child: Column(
+        children: [
+          Icon(
+            Icons.wifi_off_rounded,
+            size: 56,
+            color: AppColors.error.withOpacity(0.5),
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            'No se pudieron cargar las tareas',
+            style: TextStyle(color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: 8),
+          TextButton(
+            onPressed: _loadTasks,
+            child: const Text('Reintentar'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _emptyState() {
     return Padding(
       padding: const EdgeInsets.only(top: 30),
@@ -289,14 +330,27 @@ class _HomeScreenState extends State<HomeScreen> {
           TextButton(
             onPressed: () async {
               final auth = context.read<AuthProvider>();
-              await context.read<TaskProvider>().deleteTask(
-                task.id,
-                auth.currentUser!.id,
-              );
-              if (mounted) {
-                Navigator.pop(context);
-                await _loadTasks();
-                await context.read<TaskProvider>().loadAllTasks();
+              final taskProvider = context.read<TaskProvider>();
+              try {
+                await taskProvider.deleteTask(task.id, auth.currentUser!.id);
+                if (mounted) {
+                  Navigator.pop(context);
+                  await _loadTasks();
+                  await taskProvider.loadAllTasks();
+                }
+              } catch (_) {
+                if (mounted) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        taskProvider.errorMessage ?? 'No se pudo eliminar la tarea.',
+                      ),
+                      backgroundColor: AppColors.error,
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                }
               }
             },
             child: const Text(

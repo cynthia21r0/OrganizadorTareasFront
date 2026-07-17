@@ -132,6 +132,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         SnackBar(
           content: Text(auth.errorMessage ?? 'Error al registrarte.'),
           backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
         ),
       );
     }

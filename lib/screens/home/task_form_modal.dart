@@ -75,25 +75,39 @@ class _TaskFormModalState extends State<TaskFormModal> {
     final currentUser = auth.currentUser!;
     final assignedId = _assignedToId ?? currentUser.id;
 
-    if (_isEditing) {
-      final updated = widget.taskToEdit!.copyWith(
-        title: _titleCtrl.text,
-        description: _descCtrl.text,
-        dueDate: _dueDate,
-        priority: _priority,
-        assignedToId: assignedId,
-      );
-      await taskProvider.updateTask(updated, currentUser.id);
-    } else {
-      await taskProvider.createTask(
-        title: _titleCtrl.text,
-        description: _descCtrl.text,
-        dueDate: _dueDate,
-        priority: _priority,
-        assignedToId: assignedId,
-      );
+    try {
+      if (_isEditing) {
+        final updated = widget.taskToEdit!.copyWith(
+          title: _titleCtrl.text,
+          description: _descCtrl.text,
+          dueDate: _dueDate,
+          priority: _priority,
+          assignedToId: assignedId,
+        );
+        await taskProvider.updateTask(updated, currentUser.id);
+      } else {
+        await taskProvider.createTask(
+          title: _titleCtrl.text,
+          description: _descCtrl.text,
+          dueDate: _dueDate,
+          priority: _priority,
+          assignedToId: assignedId,
+        );
+      }
+      if (mounted) Navigator.of(context).pop();
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              taskProvider.errorMessage ?? 'No se pudo guardar la tarea.',
+            ),
+            backgroundColor: const Color(0xFFE0645B),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     }
-    if (mounted) Navigator.of(context).pop();
   }
 
   @override
