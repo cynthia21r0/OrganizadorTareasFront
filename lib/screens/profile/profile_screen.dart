@@ -1,12 +1,13 @@
 import 'dart:convert';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_theme.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/task_provider.dart';
+import '../../providers/theme_provider.dart';
 import '../auth/login_screen.dart';
 import 'edit_profile_screen.dart';
 
@@ -48,9 +49,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       setState(() => _isLoadingImage = true);
 
       try {
-        Uint8List imageBytes = await pickedFile.readAsBytes();
-        String base64String = base64Encode(imageBytes);
+        final Uint8List imageBytes = await pickedFile.readAsBytes();
+        final String base64String = base64Encode(imageBytes);
 
+        if (!mounted) return;
         await context.read<AuthProvider>().updateProfilePicture(base64String);
 
         if (mounted) {
@@ -316,12 +318,85 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ],
           ),
 
-          const SizedBox(height: 40),
+          const SizedBox(height: 16),
+
+          // ── Toggle de tema ─────────────────────────────────────────────
+          Consumer<ThemeProvider>(
+            builder: (_, themeProv, child) {
+              final isDark = themeProv.isDark;
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 18, vertical: 6),
+                decoration: BoxDecoration(
+                  color: isDark ? AppTheme.darkCard : Colors.white,
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: Row(
+                  children: [
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      transitionBuilder: (child, anim) =>
+                          RotationTransition(
+                            turns: anim,
+                            child: FadeTransition(
+                                opacity: anim, child: child),
+                          ),
+                      child: Icon(
+                        isDark
+                            ? Icons.dark_mode_rounded
+                            : Icons.light_mode_rounded,
+                        key: ValueKey(isDark),
+                        color: isDark
+                            ? AppTheme.darkAccent
+                            : AppColors.summaryCardEnd,
+                        size: 22,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Tema oscuro',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: isDark
+                                  ? AppTheme.darkTextPrimary
+                                  : AppColors.textPrimary,
+                            ),
+                          ),
+                          Text(
+                            isDark ? 'Modo oscuro activo' : 'Modo claro activo',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: isDark
+                                  ? AppTheme.darkTextSecondary
+                                  : AppColors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Switch(
+                      value: isDark,
+                      onChanged: (_) => themeProv.toggle(),
+                      activeThumbColor: AppColors.summaryCardEnd,
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+
+          const SizedBox(height: 16),
 
           OutlinedButton.icon(
             onPressed: () async {
               await auth.logout();
-              if (!mounted) return;
+              if (!context.mounted) return;
               Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(builder: (_) => const LoginScreen()),
                 (route) => false,
