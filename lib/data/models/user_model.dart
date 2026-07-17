@@ -35,6 +35,7 @@ class UserModel {
   final String familyId;
   final String avatarInitial;
   final String? profilePicture;
+  final String? familyName;
   final String? familyInviteCode;
 
   UserModel({
@@ -43,6 +44,7 @@ class UserModel {
     required this.email,
     required this.role,
     required this.familyId,
+    this.familyName,
     this.profilePicture,
     this.familyInviteCode,
   }) : avatarInitial = name.isNotEmpty ? name[0].toUpperCase() : '?';
@@ -58,6 +60,7 @@ class UserModel {
       ),
       familyId: json['familyId'] as String,
       profilePicture: json['profilePicture'] as String?,
+      familyName: json['familyName'] as String?,
       familyInviteCode: json['familyInviteCode'] as String?,
     );
   }
