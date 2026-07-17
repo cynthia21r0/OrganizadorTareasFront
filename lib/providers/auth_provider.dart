@@ -45,7 +45,7 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-   Future<bool> register({
+  Future<bool> register({
     required String name,
     required String email,
     required String password,
@@ -76,7 +76,7 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-    Future<bool> login(String email, String password) async {
+  Future<bool> login(String email, String password) async {
     isLoading = true;
     errorMessage = null;
     notifyListeners();
@@ -136,5 +136,42 @@ class AuthProvider extends ChangeNotifier {
     _repo.logout();
     await _secureStorage.deleteToken();
     notifyListeners();
+  }
+
+  Future<bool> updateProfile({
+    String? name,
+    String? email,
+    String? password,
+    String? currentPassword,
+  }) async {
+    if (_currentUser == null) return false;
+
+    isLoading = true;
+    errorMessage = null;
+    notifyListeners();
+
+    try {
+      final updatedUser = await _repo.updateProfile(
+        name: name,
+        email: email,
+        password: password,
+        currentPassword: currentPassword,
+      );
+
+      _currentUser = updatedUser;
+
+      final index = _familyMembers.indexWhere((m) => m.id == updatedUser.id);
+      if (index != -1) {
+        _familyMembers[index] = updatedUser;
+      }
+
+      return true;
+    } catch (e) {
+      errorMessage = e.toString().replaceFirst('Exception: ', '');
+      return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
   }
 }
