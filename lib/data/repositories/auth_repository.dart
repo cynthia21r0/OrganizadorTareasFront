@@ -66,5 +66,29 @@ class AuthRepository {
     return UserModel.fromJson(res.data);
   }
 
+  Future<UserModel> fetchCurrentUser() async {
+    final res = await _dio.get('/users/me');
+    return UserModel.fromJson(res.data);
+  }
+
+  Future<UserModel> updateProfile({
+    String? name,
+    String? email,
+    String? password,
+    String? currentPassword,
+  }) async {
+    final res = await _dio.patch(
+      '/users/me',
+      data: {
+        if (name != null && name.isNotEmpty) 'name': name,
+        if (email != null && email.isNotEmpty) 'email': email,
+        if (password != null && password.isNotEmpty) 'password': password,
+        if (currentPassword != null && currentPassword.isNotEmpty)
+          'currentPassword': currentPassword,
+      },
+    );
+    return UserModel.fromJson(res.data);
+  }
+
   void logout() => ApiClient.instance.token = null;
 }

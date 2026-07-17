@@ -8,6 +8,8 @@ import '../../core/theme/app_colors.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/task_provider.dart';
 import '../auth/login_screen.dart';
+import 'edit_profile_screen.dart';
+
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -26,12 +28,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _load() async {
-    final auth = context.read<AuthProvider>();
-    await auth.refreshFamilyMembers();
-    if (auth.currentUser != null) {
-      await context.read<TaskProvider>().loadMyTasks(auth.currentUser!.id);
-    }
+  final auth = context.read<AuthProvider>();
+  await auth.refreshFamilyMembers();
+  if (!mounted) return;
+  if (auth.currentUser != null) {
+    await context.read<TaskProvider>().loadMyTasks(auth.currentUser!.id);
   }
+}
 
   Future<void> _pickAndUploadImage() async {
     final picker = ImagePicker();
@@ -83,7 +86,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('Perfil')),
+      appBar: AppBar(
+  title: const Text('Perfil'),
+  actions: [
+    IconButton(
+      icon: const Icon(Icons.edit_outlined),
+      tooltip: 'Editar perfil',
+      onPressed: () => Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => const EditProfileScreen()),
+      ),
+    ),
+  ],
+),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 40),
         children: [
@@ -268,8 +282,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 40),
 
           OutlinedButton.icon(
-            onPressed: () {
-              auth.logout();
+            onPressed: () async {
+              await auth.logout();
+              if (!mounted) return;
               Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(builder: (_) => const LoginScreen()),
                 (route) => false,

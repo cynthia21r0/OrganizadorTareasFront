@@ -1,19 +1,49 @@
 import 'package:flutter/material.dart';
+import '../core/network/api_client.dart';
+import '../core/storage/secure_storage_service.dart';
 import '../data/models/user_model.dart';
 import '../data/repositories/auth_repository.dart';
 
 class AuthProvider extends ChangeNotifier {
   final AuthRepository _repo = AuthRepository();
+  final _secureStorage = SecureStorageService.instance;
 
   UserModel? _currentUser;
   List<UserModel> _familyMembers = [];
   bool isLoading = false;
+  bool isCheckingSession = true;
   String? errorMessage;
   String? lastInviteCode;
 
   UserModel? get currentUser => _currentUser;
   List<UserModel> get familyMembers => _familyMembers;
   bool get isLoggedIn => _currentUser != null;
+
+  Future<void> tryAutoLogin() async {
+    isCheckingSession = true;
+    notifyListeners();
+
+    try {
+      final savedToken = await _secureStorage.readToken();
+      if (savedToken == null) {
+        isCheckingSession = false;
+        notifyListeners();
+        return;
+      }
+
+      ApiClient.instance.token = savedToken;
+      final user = await _repo.fetchCurrentUser();
+      _currentUser = user;
+      await refreshFamilyMembers();
+    } catch (_) {
+      ApiClient.instance.token = null;
+      await _secureStorage.deleteToken();
+      _currentUser = null;
+    } finally {
+      isCheckingSession = false;
+      notifyListeners();
+    }
+  }
 
   Future<bool> register({
     required String name,
@@ -53,6 +83,12 @@ class AuthProvider extends ChangeNotifier {
     try {
       final user = await _repo.login(email: email, password: password);
       _currentUser = user;
+
+      final token = ApiClient.instance.token;
+      if (token != null) {
+        await _secureStorage.saveToken(token);
+      }
+
       await refreshFamilyMembers();
       return true;
     } catch (e) {
@@ -95,9 +131,47 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void logout() {
+  Future<void> logout() async {
     _currentUser = null;
     _repo.logout();
+    await _secureStorage.deleteToken();
     notifyListeners();
+  }
+
+  Future<bool> updateProfile({
+    String? name,
+    String? email,
+    String? password,
+    String? currentPassword,
+  }) async {
+    if (_currentUser == null) return false;
+
+    isLoading = true;
+    errorMessage = null;
+    notifyListeners();
+
+    try {
+      final updatedUser = await _repo.updateProfile(
+        name: name,
+        email: email,
+        password: password,
+        currentPassword: currentPassword,
+      );
+
+      _currentUser = updatedUser;
+
+      final index = _familyMembers.indexWhere((m) => m.id == updatedUser.id);
+      if (index != -1) {
+        _familyMembers[index] = updatedUser;
+      }
+
+      return true;
+    } catch (e) {
+      errorMessage = e.toString().replaceFirst('Exception: ', '');
+      return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
   }
 }
