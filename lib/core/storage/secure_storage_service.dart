@@ -7,6 +7,7 @@ class SecureStorageService {
   final _storage = const FlutterSecureStorage();
   static const _tokenKey = 'auth_token';
   static const _themeKey = 'is_dark_mode';
+  static const _accentKey = 'accent_color';
 
   Future<void> saveToken(String token) =>
       _storage.write(key: _tokenKey, value: token);
@@ -22,4 +23,9 @@ class SecureStorageService {
     final val = await _storage.read(key: _themeKey);
     return val == '1';
   }
-}
+
+  Future<void> saveAccent(String accentName) =>
+      _storage.write(key: _accentKey, value: accentName);
+
+  Future<String?> readAccent() => _storage.read(key: _accentKey);
+}

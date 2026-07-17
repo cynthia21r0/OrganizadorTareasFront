@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
-import 'core/theme/app_theme.dart';
 import 'providers/auth_provider.dart';
 import 'providers/notification_provider.dart';
 import 'providers/task_provider.dart';
@@ -37,8 +36,8 @@ class GestorTareasApp extends StatelessWidget {
         builder: (_, theme, child) => MaterialApp(
           title: 'Gestor de Tareas',
           debugShowCheckedModeBanner: false,
-          theme: AppTheme.lightTheme,
-          darkTheme: AppTheme.darkTheme,
+          theme: theme.lightTheme,
+          darkTheme: theme.darkTheme,
           themeMode: theme.themeMode,
           locale: const Locale('es'),
           supportedLocales: const [Locale('es'), Locale('en')],

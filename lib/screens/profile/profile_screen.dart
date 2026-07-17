@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import '../../core/theme/app_accent.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_theme.dart';
 import '../../providers/auth_provider.dart';
@@ -316,6 +317,93 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 AppColors.priorityHigh,
               ),
             ],
+          ),
+
+          const SizedBox(height: 16),
+
+          // ── Selector de color de acento ───────────────────────────
+          Consumer<ThemeProvider>(
+            builder: (_, themeProv, child) {
+              final isDark = themeProv.isDark;
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 18, vertical: 14),
+                decoration: BoxDecoration(
+                  color: isDark ? AppTheme.darkCard : Colors.white,
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Color de la aplicación',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: isDark
+                            ? AppTheme.darkTextPrimary
+                            : AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    Wrap(
+                      spacing: 12,
+                      runSpacing: 12,
+                      children: AppAccent.values.map((accent) {
+                        final isSelected = themeProv.accent == accent;
+                        return GestureDetector(
+                          onTap: () => themeProv.setAccent(accent),
+                          child: AnimatedScale(
+                            scale: isSelected ? 1.15 : 1.0,
+                            duration: const Duration(milliseconds: 200),
+                            child: Tooltip(
+                              message: accent.label,
+                              child: Container(
+                                width: 36,
+                                height: 36,
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      accent.gradientStart,
+                                      accent.primary,
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  shape: BoxShape.circle,
+                                  border: isSelected
+                                      ? Border.all(
+                                          color: Colors.white, width: 2.5)
+                                      : null,
+                                  boxShadow: isSelected
+                                      ? [
+                                          BoxShadow(
+                                            color: accent.primary
+                                                .withValues(alpha: 0.5),
+                                            blurRadius: 8,
+                                            spreadRadius: 1,
+                                          )
+                                        ]
+                                      : null,
+                                ),
+                                child: isSelected
+                                    ? const Icon(
+                                        Icons.check_rounded,
+                                        color: Colors.white,
+                                        size: 18,
+                                      )
+                                    : null,
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
 
           const SizedBox(height: 16),

@@ -18,6 +18,10 @@ class AppBottomNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final navBg = isDark ? AppTheme.darkNavBg : AppColors.navBackground;
+    // Usa el color primario del tema actual (respeta el acento seleccionado)
+    final activeColor = Theme.of(context).colorScheme.primary;
+    final activeBg = activeColor.withValues(alpha: 0.12);
+
     return Container(
       decoration: BoxDecoration(
         color: navBg,
@@ -36,18 +40,21 @@ class AppBottomNavBar extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _navItem(context, 0, Icons.home_rounded, 'Inicio'),
-            _navItem(context, 1, Icons.groups_rounded, 'Familia'),
-            _notifItem(context),
-            _navItem(context, 3, Icons.person_rounded, 'Perfil'),
+            _navItem(context, 0, Icons.home_rounded, 'Inicio',
+                activeColor, activeBg),
+            _navItem(context, 1, Icons.groups_rounded, 'Familia',
+                activeColor, activeBg),
+            _notifItem(context, activeColor, activeBg),
+            _navItem(context, 3, Icons.person_rounded, 'Perfil',
+                activeColor, activeBg),
           ],
         ),
       ),
     );
   }
 
-  Widget _navItem(
-      BuildContext context, int index, IconData icon, String label) {
+  Widget _navItem(BuildContext context, int index, IconData icon, String label,
+      Color activeColor, Color activeBg) {
     final isActive = index == currentIndex;
     return GestureDetector(
       onTap: () => onTap(index),
@@ -55,15 +62,16 @@ class AppBottomNavBar extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: isActive ? AppColors.navActiveBg : Colors.transparent,
+              color: isActive ? activeBg : Colors.transparent,
               shape: BoxShape.circle,
             ),
             child: Icon(
               icon,
-              color: isActive ? AppColors.navActive : AppColors.navInactive,
+              color: isActive ? activeColor : AppColors.navInactive,
               size: 24,
             ),
           ),
@@ -72,7 +80,7 @@ class AppBottomNavBar extends StatelessWidget {
             label,
             style: TextStyle(
               fontSize: 11.5,
-              color: isActive ? AppColors.navActive : AppColors.navInactive,
+              color: isActive ? activeColor : AppColors.navInactive,
               fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
             ),
           ),
@@ -81,7 +89,8 @@ class AppBottomNavBar extends StatelessWidget {
     );
   }
 
-  Widget _notifItem(BuildContext context) {
+  Widget _notifItem(
+      BuildContext context, Color activeColor, Color activeBg) {
     const index = 2;
     final isActive = index == currentIndex;
     return GestureDetector(
@@ -93,15 +102,16 @@ class AppBottomNavBar extends StatelessWidget {
           Stack(
             clipBehavior: Clip.none,
             children: [
-              Container(
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: isActive ? AppColors.navActiveBg : Colors.transparent,
+                  color: isActive ? activeBg : Colors.transparent,
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.notifications_rounded,
-                  color: isActive ? AppColors.navActive : AppColors.navInactive,
+                  color: isActive ? activeColor : AppColors.navInactive,
                   size: 24,
                 ),
               ),
@@ -147,7 +157,7 @@ class AppBottomNavBar extends StatelessWidget {
             'Alertas',
             style: TextStyle(
               fontSize: 11.5,
-              color: isActive ? AppColors.navActive : AppColors.navInactive,
+              color: isActive ? activeColor : AppColors.navInactive,
               fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
             ),
           ),
