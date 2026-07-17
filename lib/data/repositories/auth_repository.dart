@@ -66,5 +66,10 @@ class AuthRepository {
     return UserModel.fromJson(res.data);
   }
 
+  Future<UserModel> fetchCurrentUser() async {
+  final res = await _dio.get('/users/me');
+  return UserModel.fromJson(res.data);
+  }
+
   void logout() => ApiClient.instance.token = null;
 }
