@@ -20,6 +20,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passFocus = FocusNode();
 
   bool _obscure = true;
+  String? _serverError;
 
   @override
   void initState() {
@@ -73,16 +74,10 @@ class _LoginScreenState extends State<LoginScreen> {
         context,
       ).pushReplacement(MaterialPageRoute(builder: (_) => const MainShell()));
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            auth.errorMessage ??
-                'Credenciales incorrectas. Inténtalo de nuevo.',
-          ),
-          backgroundColor: AppColors.error,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      setState(() {
+        _serverError =
+            auth.errorMessage ?? 'Credenciales incorrectas. Inténtalo de nuevo.';
+      });
     }
   }
 
@@ -91,7 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final auth = context.watch<AuthProvider>();
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
@@ -111,10 +106,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         width: 200,
                         height: 200,
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(
+                          gradient: LinearGradient(
                             colors: [
-                              AppColors.summaryCardStart,
-                              AppColors.summaryCardEnd,
+                              Theme.of(context).colorScheme.primary.withValues(alpha: 0.7),
+                              Theme.of(context).colorScheme.primary,
                             ],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
@@ -122,7 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           borderRadius: BorderRadius.circular(22),
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.summaryCardEnd.withOpacity(0.3),
+                              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
                               blurRadius: 15,
                               offset: const Offset(0, 8),
                             ),
@@ -137,32 +132,67 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 32),
 
-                    const Text(
+                    Text(
                       'Bienvenido de nuevo',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 26,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
+                        color: Theme.of(context).colorScheme.onSurface,
                         letterSpacing: -0.5,
                       ),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
+                    Text(
                       'Inicia sesión para gestionar las tareas de tu hogar',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: AppColors.textSecondary,
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                         fontSize: 14,
                       ),
                     ),
                     const SizedBox(height: 36),
 
+                    if (_serverError != null)
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 16),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.error.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.error.withValues(alpha: 0.4),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.error_outline,
+                              color: Theme.of(context).colorScheme.error,
+                              size: 18,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                _serverError!,
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.error,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
                     TextFormField(
                       controller: _emailCtrl,
                       focusNode: _emailFocus,
                       keyboardType: TextInputType.emailAddress,
-                      onChanged: (_) => setState(() {}),
+                      onChanged: (_) => setState(() { _serverError = null; }),
                       decoration: InputDecoration(
                         labelText: 'Correo electrónico',
                         hintText: 'ejemplo@correo.com',
@@ -179,7 +209,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       controller: _passCtrl,
                       focusNode: _passFocus,
                       obscureText: _obscure,
-                      onChanged: (_) => setState(() {}),
+                      onChanged: (_) => setState(() { _serverError = null; }),
                       decoration: InputDecoration(
                         labelText: 'Contraseña',
                         helperText: _passFocus.hasFocus

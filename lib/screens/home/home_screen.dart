@@ -19,6 +19,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   DateTime? _filterDay;
+  bool _loadError = false;
 
   String? _cachedProfilePictureSource;
   Uint8List? _cachedImageBytes;
@@ -33,11 +34,15 @@ class _HomeScreenState extends State<HomeScreen> {
     final auth = context.read<AuthProvider>();
     final taskProvider = context.read<TaskProvider>();
     if (auth.currentUser == null) return;
-
-    if (_filterDay == null) {
-      await taskProvider.loadMyTasks(auth.currentUser!.id);
-    } else {
-      await taskProvider.loadMyTasksByDay(auth.currentUser!.id, _filterDay!);
+    setState(() => _loadError = false);
+    try {
+      if (_filterDay == null) {
+        await taskProvider.loadMyTasks(auth.currentUser!.id);
+      } else {
+        await taskProvider.loadMyTasksByDay(auth.currentUser!.id, _filterDay!);
+      }
+    } catch (_) {
+      if (mounted) setState(() => _loadError = true);
     }
   }
 
@@ -60,9 +65,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final avatarBytes = _decodedProfilePicture(user?.profilePicture);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       floatingActionButton: FloatingActionButton(
-        backgroundColor: AppColors.fabPurple,
+        backgroundColor: Theme.of(context).colorScheme.primary,
         onPressed: () async {
           await showTaskFormModal(context);
           await _loadTasks();
@@ -87,14 +92,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       children: [
                         const Text(
                           'Hola 👋',
-                          style: TextStyle(color: AppColors.textSecondary),
+                          style: TextStyle(color: Colors.grey),
                         ),
                         Text(
                           user?.name ?? '',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                       ],
@@ -102,7 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   CircleAvatar(
                     radius: 22,
-                    backgroundColor: AppColors.summaryCardEnd,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                     backgroundImage: avatarBytes != null
                         ? MemoryImage(avatarBytes)
                         : null,
@@ -131,18 +136,18 @@ class _HomeScreenState extends State<HomeScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
+                  Text(
                     'Mis tareas',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   Text(
                     '${taskProvider.pendingCount} pendientes',
-                    style: const TextStyle(
-                      color: AppColors.textSecondary,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                       fontSize: 13,
                     ),
                   ),
@@ -154,6 +159,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   padding: EdgeInsets.only(top: 40),
                   child: Center(child: CircularProgressIndicator()),
                 )
+              else if (_loadError)
+                _errorState()
               else if (taskProvider.myTasks.isEmpty)
                 _emptyState()
               else
@@ -163,6 +170,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     task: task,
                     onToggle: () async {
                       await taskProvider.toggleStatus(task, user!.id);
+                      if (mounted && taskProvider.errorMessage != null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(taskProvider.errorMessage!),
+                            backgroundColor: AppColors.error,
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      }
                       await _loadTasks();
                       if (mounted) await taskProvider.loadAllTasks();
                     },
@@ -226,7 +242,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Container(
         width: 56,
         decoration: BoxDecoration(
-          color: selected ? AppColors.summaryCardEnd : Colors.white,
+          color: selected ? Theme.of(context).colorScheme.primary : Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(16),
         ),
         alignment: Alignment.center,
@@ -237,7 +253,7 @@ class _HomeScreenState extends State<HomeScreen> {
               label,
               style: TextStyle(
                 fontSize: 11,
-                color: selected ? Colors.white70 : AppColors.textSecondary,
+                color: selected ? Colors.white70 : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
               ),
             ),
             if (number.isNotEmpty)
@@ -246,11 +262,36 @@ class _HomeScreenState extends State<HomeScreen> {
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
-                  color: selected ? Colors.white : AppColors.textPrimary,
+                  color: selected ? Colors.white : Theme.of(context).colorScheme.onSurface,
                 ),
               ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _errorState() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 30),
+      child: Column(
+        children: [
+          Icon(
+            Icons.wifi_off_rounded,
+            size: 56,
+            color: AppColors.error.withOpacity(0.5),
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            'No se pudieron cargar las tareas',
+            style: TextStyle(color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: 8),
+          TextButton(
+            onPressed: _loadTasks,
+            child: const Text('Reintentar'),
+          ),
+        ],
       ),
     );
   }
@@ -263,12 +304,12 @@ class _HomeScreenState extends State<HomeScreen> {
           Icon(
             Icons.task_alt,
             size: 56,
-            color: AppColors.textSecondary.withOpacity(0.4),
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.4),
           ),
           const SizedBox(height: 12),
-          const Text(
+          Text(
             'Sin tareas asignadas',
-            style: TextStyle(color: AppColors.textSecondary),
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
           ),
         ],
       ),
@@ -289,19 +330,32 @@ class _HomeScreenState extends State<HomeScreen> {
           TextButton(
             onPressed: () async {
               final auth = context.read<AuthProvider>();
-              await context.read<TaskProvider>().deleteTask(
-                task.id,
-                auth.currentUser!.id,
-              );
-              if (mounted) {
-                Navigator.pop(context);
-                await _loadTasks();
-                await context.read<TaskProvider>().loadAllTasks();
+              final taskProvider = context.read<TaskProvider>();
+              try {
+                await taskProvider.deleteTask(task.id, auth.currentUser!.id);
+                if (mounted) {
+                  Navigator.pop(context);
+                  await _loadTasks();
+                  await taskProvider.loadAllTasks();
+                }
+              } catch (_) {
+                if (mounted) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        taskProvider.errorMessage ?? 'No se pudo eliminar la tarea.',
+                      ),
+                      backgroundColor: AppColors.error,
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                }
               }
             },
-            child: const Text(
+            child: Text(
               'Eliminar',
-              style: TextStyle(color: AppColors.error),
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
           ),
         ],

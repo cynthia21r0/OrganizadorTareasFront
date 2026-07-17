@@ -75,25 +75,39 @@ class _TaskFormModalState extends State<TaskFormModal> {
     final currentUser = auth.currentUser!;
     final assignedId = _assignedToId ?? currentUser.id;
 
-    if (_isEditing) {
-      final updated = widget.taskToEdit!.copyWith(
-        title: _titleCtrl.text,
-        description: _descCtrl.text,
-        dueDate: _dueDate,
-        priority: _priority,
-        assignedToId: assignedId,
-      );
-      await taskProvider.updateTask(updated, currentUser.id);
-    } else {
-      await taskProvider.createTask(
-        title: _titleCtrl.text,
-        description: _descCtrl.text,
-        dueDate: _dueDate,
-        priority: _priority,
-        assignedToId: assignedId,
-      );
+    try {
+      if (_isEditing) {
+        final updated = widget.taskToEdit!.copyWith(
+          title: _titleCtrl.text,
+          description: _descCtrl.text,
+          dueDate: _dueDate,
+          priority: _priority,
+          assignedToId: assignedId,
+        );
+        await taskProvider.updateTask(updated, currentUser.id);
+      } else {
+        await taskProvider.createTask(
+          title: _titleCtrl.text,
+          description: _descCtrl.text,
+          dueDate: _dueDate,
+          priority: _priority,
+          assignedToId: assignedId,
+        );
+      }
+      if (mounted) Navigator.of(context).pop();
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              taskProvider.errorMessage ?? 'No se pudo guardar la tarea.',
+            ),
+            backgroundColor: const Color(0xFFE0645B),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     }
-    if (mounted) Navigator.of(context).pop();
   }
 
   @override
@@ -108,9 +122,9 @@ class _TaskFormModalState extends State<TaskFormModal> {
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
       child: Container(
-        decoration: const BoxDecoration(
-          color: AppColors.background,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        decoration: BoxDecoration(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
         padding: const EdgeInsets.fromLTRB(20, 14, 20, 24),
         child: Form(
@@ -134,10 +148,10 @@ class _TaskFormModalState extends State<TaskFormModal> {
                 const SizedBox(height: 16),
                 Text(
                   _isEditing ? 'Editar tarea' : 'Nueva tarea',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -170,7 +184,7 @@ class _TaskFormModalState extends State<TaskFormModal> {
                 Text(
                   'Prioridad',
                   style: TextStyle(
-                    color: AppColors.textSecondary,
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                     fontSize: 13,
                   ),
                 ),
@@ -196,7 +210,7 @@ class _TaskFormModalState extends State<TaskFormModal> {
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
-                            color: selected ? color : Colors.white,
+                            color: selected ? color : Theme.of(context).cardColor,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(color: color, width: 1.4),
                           ),
@@ -217,7 +231,7 @@ class _TaskFormModalState extends State<TaskFormModal> {
                   Text(
                     'Asignar a',
                     style: TextStyle(
-                      color: AppColors.textSecondary,
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                       fontSize: 13,
                     ),
                   ),
@@ -243,8 +257,8 @@ class _TaskFormModalState extends State<TaskFormModal> {
                   onPressed: isTitleValid ? _submit : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: isTitleValid
-                        ? AppColors.fabPurple
-                        : Colors.grey.shade300,
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).disabledColor,
                   ),
                   child: Text(_isEditing ? 'Guardar cambios' : 'Crear tarea'),
                 ),

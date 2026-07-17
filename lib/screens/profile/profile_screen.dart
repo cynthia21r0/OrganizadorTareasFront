@@ -1,12 +1,14 @@
 import 'dart:convert';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import '../../core/theme/app_accent.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_theme.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/task_provider.dart';
+import '../../providers/theme_provider.dart';
 import '../auth/login_screen.dart';
 import 'edit_profile_screen.dart';
 
@@ -48,9 +50,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       setState(() => _isLoadingImage = true);
 
       try {
-        Uint8List imageBytes = await pickedFile.readAsBytes();
-        String base64String = base64Encode(imageBytes);
+        final Uint8List imageBytes = await pickedFile.readAsBytes();
+        final String base64String = base64Encode(imageBytes);
 
+        if (!mounted) return;
         await context.read<AuthProvider>().updateProfilePicture(base64String);
 
         if (mounted) {
@@ -83,8 +86,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (user == null) return const SizedBox.shrink();
     final String inviteCode = user.familyInviteCode ?? 'Sin código';
 
+
+    final cardColor = Theme.of(context).cardColor;
+    final textColor = Theme.of(context).colorScheme.onSurface;
+    final textSecondaryColor = textColor.withValues(alpha: 0.6);
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text('Perfil'),
         actions: [
@@ -103,7 +111,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Container(
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: cardColor,
               borderRadius: BorderRadius.circular(18),
             ),
             child: Row(
@@ -158,16 +166,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     children: [
                       Text(
                         user.name,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.bold,
+                          color: textColor,
                         ),
                       ),
                       Text(
                         user.email,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12.5,
-                          color: AppColors.textSecondary,
+                          color: textSecondaryColor,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -201,7 +210,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: cardColor,
               borderRadius: BorderRadius.circular(18),
             ),
             child: Row(
@@ -210,20 +219,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Código de Invitación Familiar',
                       style: TextStyle(
                         fontSize: 13,
-                        color: AppColors.textSecondary,
+                        color: textSecondaryColor,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       inviteCode,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 2,
+                        color: textColor,
                       ),
                     ),
                   ],
@@ -248,7 +258,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: cardColor,
               borderRadius: BorderRadius.circular(18),
             ),
             child: Row(
@@ -261,19 +271,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Familia',
                       style: TextStyle(
                         fontSize: 13,
-                        color: AppColors.textSecondary,
+                        color: textSecondaryColor,
                       ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       user.familyName ?? 'Sin nombre',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
+                        color: textColor,
                       ),
                     ),
                   ],
@@ -282,12 +293,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           const SizedBox(height: 24),
-          const Text(
+          Text(
             'Rendimiento',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
+              color: textColor,
             ),
           ),
           const SizedBox(height: 12),
@@ -316,12 +327,172 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ],
           ),
 
-          const SizedBox(height: 40),
+          const SizedBox(height: 16),
+
+          // ── Selector de color de acento ───────────────────────────
+          Consumer<ThemeProvider>(
+            builder: (_, themeProv, child) {
+              final isDark = themeProv.isDark;
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 18, vertical: 14),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardColor,
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Color de la aplicación',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: isDark
+                            ? Theme.of(context).colorScheme.onSurface
+                            : AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    Wrap(
+                      spacing: 12,
+                      runSpacing: 12,
+                      children: AppAccent.values.map((accent) {
+                        final isSelected = themeProv.accent == accent;
+                        return GestureDetector(
+                          onTap: () => themeProv.setAccent(accent),
+                          child: AnimatedScale(
+                            scale: isSelected ? 1.15 : 1.0,
+                            duration: const Duration(milliseconds: 200),
+                            child: Tooltip(
+                              message: accent.label,
+                              child: Container(
+                                width: 36,
+                                height: 36,
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      accent.gradientStart,
+                                      accent.primary,
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  shape: BoxShape.circle,
+                                  border: isSelected
+                                      ? Border.all(
+                                          color: Colors.white, width: 2.5)
+                                      : null,
+                                  boxShadow: isSelected
+                                      ? [
+                                          BoxShadow(
+                                            color: accent.primary
+                                                .withValues(alpha: 0.5),
+                                            blurRadius: 8,
+                                            spreadRadius: 1,
+                                          )
+                                        ]
+                                      : null,
+                                ),
+                                child: isSelected
+                                    ? const Icon(
+                                        Icons.check_rounded,
+                                        color: Colors.white,
+                                        size: 18,
+                                      )
+                                    : null,
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+
+          const SizedBox(height: 16),
+
+          // ── Toggle de tema ─────────────────────────────────────────────
+          Consumer<ThemeProvider>(
+            builder: (_, themeProv, child) {
+              final isDark = themeProv.isDark;
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 18, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardColor,
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: Row(
+                  children: [
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      transitionBuilder: (child, anim) =>
+                          RotationTransition(
+                            turns: anim,
+                            child: FadeTransition(
+                                opacity: anim, child: child),
+                          ),
+                      child: Icon(
+                        isDark
+                            ? Icons.dark_mode_rounded
+                            : Icons.light_mode_rounded,
+                        key: ValueKey(isDark),
+                        color: isDark
+                            ? AppTheme.darkAccent
+                            : AppColors.summaryCardEnd,
+                        size: 22,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Tema oscuro',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: isDark
+                                  ? Theme.of(context).colorScheme.onSurface
+                                  : AppColors.textPrimary,
+                            ),
+                          ),
+                          Text(
+                            isDark ? 'Modo oscuro activo' : 'Modo claro activo',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: isDark
+                                  ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)
+                                  : AppColors.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Switch(
+                      value: isDark,
+                      onChanged: (_) => themeProv.toggle(),
+                      activeThumbColor: AppColors.summaryCardEnd,
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+
+          const SizedBox(height: 16),
 
           OutlinedButton.icon(
             onPressed: () async {
               await auth.logout();
-              if (!mounted) return;
+              if (!context.mounted) return;
               Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(builder: (_) => const LoginScreen()),
                 (route) => false,

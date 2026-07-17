@@ -8,6 +8,7 @@ class TaskProvider extends ChangeNotifier {
   List<TaskModel> _myTasks = [];
   List<TaskModel> _allTasks = [];
   bool isLoading = false;
+  String? errorMessage;
 
   List<TaskModel> get myTasks => _myTasks;
   List<TaskModel> get allTasks => _allTasks;
@@ -54,19 +55,33 @@ class TaskProvider extends ChangeNotifier {
     required TaskPriority priority,
     required String assignedToId,
   }) async {
-    await _repo.createTask(
-      title: title,
-      description: description,
-      dueDate: dueDate,
-      priority: priority,
-      assignedToId: assignedToId,
-    );
-    await _refreshAll(assignedToId);
+    try {
+      errorMessage = null;
+      await _repo.createTask(
+        title: title,
+        description: description,
+        dueDate: dueDate,
+        priority: priority,
+        assignedToId: assignedToId,
+      );
+      await _refreshAll(assignedToId);
+    } catch (e) {
+      errorMessage = e.toString().replaceFirst('Exception: ', '');
+      notifyListeners();
+      rethrow;
+    }
   }
 
   Future<void> updateTask(TaskModel task, String currentUserId) async {
-    await _repo.updateTask(task);
-    await _refreshAll(currentUserId);
+    try {
+      errorMessage = null;
+      await _repo.updateTask(task);
+      await _refreshAll(currentUserId);
+    } catch (e) {
+      errorMessage = e.toString().replaceFirst('Exception: ', '');
+      notifyListeners();
+      rethrow;
+    }
   }
 
   Future<void> toggleStatus(TaskModel task, String currentUserId) async {
@@ -95,13 +110,21 @@ class TaskProvider extends ChangeNotifier {
       final revertIndex = _myTasks.indexWhere((t) => t.id == task.id);
       if (revertIndex != -1) {
         _myTasks[revertIndex] = task;
-        notifyListeners();
       }
+      errorMessage = 'No se pudo cambiar el estado. Intenta de nuevo.';
+      notifyListeners();
     }
   }
 
   Future<void> deleteTask(String taskId, String currentUserId) async {
-    await _repo.deleteTask(taskId);
-    await _refreshAll(currentUserId);
+    try {
+      errorMessage = null;
+      await _repo.deleteTask(taskId);
+      await _refreshAll(currentUserId);
+    } catch (e) {
+      errorMessage = e.toString().replaceFirst('Exception: ', '');
+      notifyListeners();
+      rethrow;
+    }
   }
 }

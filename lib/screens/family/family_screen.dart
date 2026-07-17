@@ -59,7 +59,7 @@ class _FamilyScreenState extends State<FamilyScreen>
     final taskProvider = context.watch<TaskProvider>();
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
           _selectedMember == null ? 'Familia' : _selectedMember!.name,
@@ -97,12 +97,12 @@ class _FamilyScreenState extends State<FamilyScreen>
       child: members.isEmpty
           ? ListView(
               physics: const AlwaysScrollableScrollPhysics(),
-              children: const [
+              children: [
                 SizedBox(height: 100),
                 Center(
                   child: Text(
                     'Aún no hay integrantes registrados',
-                    style: TextStyle(color: AppColors.textSecondary),
+                    style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
                   ),
                 ),
               ],
@@ -115,12 +115,12 @@ class _FamilyScreenState extends State<FamilyScreen>
                 children: [
                   _buildInviteCard(inviteCode, context),
                   const SizedBox(height: 24),
-                  const Text(
+                  Text(
                     'Integrantes del hogar',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 14),
@@ -155,7 +155,7 @@ class _FamilyScreenState extends State<FamilyScreen>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(18),
         boxShadow: const [
           BoxShadow(
@@ -171,17 +171,18 @@ class _FamilyScreenState extends State<FamilyScreen>
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Código de Invitación',
-                style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                style: TextStyle(fontSize: 13, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)),
               ),
               const SizedBox(height: 4),
               Text(
                 inviteCode,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 2,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ],
@@ -205,7 +206,7 @@ class _FamilyScreenState extends State<FamilyScreen>
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(18),
         boxShadow: const [
           BoxShadow(
@@ -241,16 +242,16 @@ class _FamilyScreenState extends State<FamilyScreen>
             textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
           Text(
             m.role.label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 11.5,
-              color: AppColors.textSecondary,
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
             ),
           ),
           const SizedBox(height: 8),
@@ -298,7 +299,7 @@ class _FamilyScreenState extends State<FamilyScreen>
                   margin: const EdgeInsets.only(bottom: 10),
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: isCompleted ? AppColors.completedBg : Colors.white,
+                    color: isCompleted ? AppColors.completedBg : Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Row(
@@ -327,9 +328,9 @@ class _FamilyScreenState extends State<FamilyScreen>
                             ),
                             Text(
                               '→ ${member.name} · ${DateFormat('dd MMM', 'es').format(t.dueDate)}',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12,
-                                color: AppColors.textSecondary,
+                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                               ),
                             ),
                           ],

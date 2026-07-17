@@ -3,6 +3,7 @@ import '../../widgets/bottom_nav_bar.dart';
 import '../family/family_screen.dart';
 import '../profile/profile_screen.dart';
 import 'home_screen.dart';
+import 'notifications_screen.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
@@ -14,7 +15,12 @@ class MainShell extends StatefulWidget {
 class _MainShellState extends State<MainShell> {
   int _index = 0;
 
-  final _screens = const [HomeScreen(), FamilyScreen(), ProfileScreen()];
+  final _screens = const [
+    HomeScreen(),
+    FamilyScreen(),
+    NotificationsScreen(),
+    ProfileScreen(),
+  ];
 
   @override
   Widget build(BuildContext context) {
